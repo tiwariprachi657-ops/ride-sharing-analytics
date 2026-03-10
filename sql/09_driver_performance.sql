@@ -1,22 +1,40 @@
 
--- 09_driver_performance_refactored.sql
--- Removes duplicate KPI logic and standardizes performance calculation
-
-WITH driver_metrics AS (
-    SELECT
-        driver_id,
-        COUNT(*) AS total_rides,
-        SUM(CASE WHEN ride_status = 'completed' THEN 1 ELSE 0 END) AS completed_rides,
-        SUM(CASE WHEN ride_status = 'completed' THEN fare ELSE 0 END) AS driver_revenue
-    FROM rides
-    GROUP BY driver_id
-)
+-- 09_driver_performance.sql
+-- Driver level performance with driver details
 
 SELECT
-    driver_id,
-    total_rides,
-    completed_rides,
-    ROUND(completed_rides / total_rides * 100, 2) AS completion_rate_pct,
-    driver_revenue,
-    RANK() OVER (ORDER BY driver_revenue DESC) AS revenue_rank
-FROM driver_metrics;
+    r.driver_id,
+    d.name AS driver_name,
+    d.signup_date,
+    d.is_active,
+    COUNT(*) AS total_rides,
+
+    SUM(CASE 
+        WHEN r.ride_status = 'completed' 
+        THEN 1 ELSE 0 END) AS completed_rides,
+    SUM(CASE 
+        WHEN r.ride_status LIKE 'cancelled%' 
+        THEN 1 ELSE 0 END) AS cancelled_rides,
+
+    ROUND(
+        SUM(CASE WHEN r.ride_status = 'completed' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2
+    ) AS completion_rate_pct,
+
+    ROUND(
+        SUM(CASE WHEN r.ride_status = 'completed' THEN r.fare ELSE 0 END), 2
+    ) AS total_revenue,
+
+    ROUND(
+        AVG(CASE WHEN r.ride_status = 'completed' THEN r.fare END), 2 
+        ) AS avg_fare_completed
+
+FROM rides r
+JOIN drivers d
+    ON r.driver_id = d.driver_id
+
+GROUP BY
+    r.driver_id,
+    d.name,
+    d.signup_date,
+    d.is_active
+ORDER BY total_revenue DESC;
