@@ -97,6 +97,7 @@ The SQL queries make use of:
 **Executive Overview**
 
 ![1](<Executive_Overview Dashboard.png>)
+<img width="1332" height="746" alt="Driver_Performance Dashboard" src="https://github.com/user-attachments/assets/871d507a-3bfe-4e1c-b1d1-f6a5248a8d55" />
 
 **Driver Performance**
 
