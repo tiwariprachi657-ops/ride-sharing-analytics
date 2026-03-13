@@ -178,7 +178,3 @@ Through this project I practiced:
 
 ---
 
-## Author
-
-Data Analyst Portfolio Project  
-Ride-Sharing Operational Analytics
